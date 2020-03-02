@@ -1,28 +1,16 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import tensorflow as tf
+import os
+import configparser
+
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
+
 '''
 Developed by Armin Seyeditabari & Narges Tabari.
 '''
-import os
-import sys
-import getopt
-import gc
-import time
-import csv
-import numpy as np  # linear algebra
-import pandas as pd  # data processing, CSV file I/O (e.g. pd.read_csv)
-from tqdm import tqdm
-import math
-from sklearn.model_selection import train_test_split
-from sklearn import metrics
-import matplotlib.pyplot as plt
-
-import tensorflow as tf
-from tensorflow.keras import regularizers
-import os
-import time
-import gc
-import re
-import glob
-import configparser
 
 
 config = configparser.RawConfigParser()
@@ -48,10 +36,13 @@ puncts = [',', '.', '"', ':', ')', '(', '-', '!', '?', '|', ';', "'", '$', '&', 
           '▒', '：', '¼', '⊕', '▼', '▪', '†', '■', '’', '▀', '¨', '▄', '♫', '☆', 'é', '¯', '♦', '¤', '▲', 'è', '¸', '¾', 'Ã', '⋅', '‘', '∞',
           '∙', '）', '↓', '、', '│', '（', '»', '，', '♪', '╩', '╚', '³', '・', '╦', '╣', '╔', '╗', '▬', '❤', 'ï', 'Ø', '¹', '≤', '‡', '√', ]
 
-'''
-Seperates punctuations from words in given string x
-'''
-def clead_data(x):
+
+def clean_data(x):
+    """
+    Seperates punctuations from words in given string.
+    :param x: String
+    :return: Cleaned string.
+    """
     x = str(x).strip().lower()
     for punct in puncts:
         x = x.replace(punct, ' %s ' % punct)
@@ -67,9 +58,9 @@ def prepare_data(target_emotion = 'anger',other_emotions=None):
     dataset_all = pd.read_csv(dataset_File)
     
     ## cleans up the text and makes it lower case
-    dataset_all["text"] = dataset_all["text"].apply(lambda x: clead_data(x))
+    dataset_all["text"] = dataset_all["text"].apply(lambda x: clean_data(x))
         
-    dataset_all["emotion"] = dataset_all["emotion"].apply(lambda x: clead_data(x))
+    dataset_all["emotion"] = dataset_all["emotion"].apply(lambda x: clean_data(x))
     
     print('Number of unique tweets: {}'.format(len(dataset_all['id'].unique().tolist())))
     
