@@ -5,3 +5,14 @@ trained_models/*.h5
 .DS_Store
 handler-bkp.py
 model.pptx
+*.h5
+WordsNotFound.txt
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+## Pycharm
+.idea/
+idea/
