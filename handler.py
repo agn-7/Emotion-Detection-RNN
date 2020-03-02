@@ -48,53 +48,51 @@ def clean_data(x):
         x = x.replace(punct, ' %s ' % punct)
     return x
 
-# Loading the data
 
-'''
-Prepares Train, Validation, and Test set along with the vocabulary 
-for a given target emotion
-'''
 def prepare_data(target_emotion = 'anger',other_emotions=None):
+    """
+    Prepares Train, Validation, and Test set along with the vocabulary
+    for a given target emotion.
+    :param target_emotion:
+    :param other_emotions:
+    :return:
+    """
     dataset_all = pd.read_csv(dataset_File)
     
-    ## cleans up the text and makes it lower case
+    # cleans up the text and makes it lower case
     dataset_all["text"] = dataset_all["text"].apply(lambda x: clean_data(x))
         
     dataset_all["emotion"] = dataset_all["emotion"].apply(lambda x: clean_data(x))
     
     print('Number of unique tweets: {}'.format(len(dataset_all['id'].unique().tolist())))
-    
 
-    ## prints distribution of emotions in full dataset
+    # prints distribution of emotions in full dataset
     s = pd.Series(dataset_all['emotion'])
     print(s.value_counts())
 
-
-    ## select data based on a target emotion with random selection from others
+    # select data based on a target emotion with random selection from others
     dataset_target = dataset_all.loc[dataset_all['emotion'] == target_emotion]
     target_count = dataset_target['emotion'].count()
-    if other_emotions == None:
+    if other_emotions is None:
         dataset_other = dataset_all.loc[dataset_all['emotion'] != target_emotion].sample(target_count)
     else:
         dataset_other = dataset_all.loc[dataset_all['emotion'] == other_emotions].sample(target_count)
     
-    ## assign float values to class labels
+    # assign float values to class labels
     dataset_target['emotion'] = 1.0
     dataset_other['emotion'] = 0.0
- 
 
     dataset = pd.concat([dataset_target, dataset_other])
     
-    ## prints distribution of emotions in selected dataset
+    # prints distribution of emotions in selected dataset
     s = pd.Series(dataset['emotion'])
     print(s.value_counts())
 
-    ## split to train, validation and test
+    # split to train, validation and test
     train_df, val_test_df = train_test_split(dataset, test_size=0.2, random_state=2018)  # .08 since the datasize is large enough.
     test_df, val_df = train_test_split(val_test_df, test_size=0.5, random_state=2018)
-    
-    
-    ## prints distribution of emotions in train, validation and test sets
+
+    # prints distribution of emotions in train, validation and test sets
     s = pd.Series(train_df['emotion'])
     print('**************')
     print(s.value_counts())
@@ -107,13 +105,13 @@ def prepare_data(target_emotion = 'anger',other_emotions=None):
     print('**************')
     print(s.value_counts())
 
-    ## fill up the missing values
+    # fill up the missing values
     all_X = dataset['text'].fillna("_##_").values
     train_X = train_df["text"].fillna("_##_").values
     val_X = val_df["text"].fillna("_##_").values
     test_X = test_df["text"].fillna("_##_").values
 
-    ## Tokenize the sentences
+    # Tokenize the sentences
     tokenizer = tf.keras.preprocessing.text.Tokenizer(num_words=max_features)
     tokenizer.fit_on_texts(list(all_X))
     print('#### number of words: ')
@@ -130,18 +128,18 @@ def prepare_data(target_emotion = 'anger',other_emotions=None):
     # plt.hist(lengths, bins = 'auto')
     # plt.show()
 
-    ## Pad the sentences. We need to pad the sequence with 0's to achieve consistent length across examples.
+    # Pad the sentences. We need to pad the sequence with 0's to achieve consistent length across examples.
     train_X = tf.keras.preprocessing.sequence.pad_sequences(train_X, maxlen=maxlen)
     val_X = tf.keras.preprocessing.sequence.pad_sequences(val_X, maxlen=maxlen)
     test_X = tf.keras.preprocessing.sequence.pad_sequences(test_X, maxlen=maxlen)
 
-    ## Get the target values
+    # Get the target values
     train_y = train_df['emotion'].values
     val_y = val_df['emotion'].values
     test_y = test_df['emotion'].values
     print(type(train_y))
 
-    #shuffling the data
+    # shuffling the data
     np.random.seed(2018)
     trn_idx = np.random.permutation(len(train_X))
     val_idx = np.random.permutation(len(val_X))
@@ -156,16 +154,20 @@ def prepare_data(target_emotion = 'anger',other_emotions=None):
 
     return train_X, val_X, test_X, train_y, val_y, test_y, tokenizer.word_index
 
-'''
-Create an embedding matrix in which we keep only the embeddings for words which are in our word_index
-'''
+
 def load_embedding(word_index, embedding_file):
+    """
+    Create an embedding matrix in which we keep only the embeddings for words which are in our word_index
+    :param word_index:
+    :param embedding_file:
+    :return:
+    """
 
     def get_coefs(word, *arr): return word, np.asarray(arr, dtype='float32')
     embeddings_index = dict(get_coefs(*o.split(" ")) for o in open(embedding_file))
     embed_size = len(embeddings_index[next(iter(embeddings_index))])
     
-    ## make sure all embeddings have the right format
+    # make sure all embeddings have the right format
     key_to_del = []
     for key, value in embeddings_index.items():
         if not len(value) == embed_size:
@@ -203,9 +205,13 @@ def load_embedding(word_index, embedding_file):
     return embedding_matrix, embed_size
 
 
-
 def model_gru(embedding_matrix, embed_size):
-
+    """
+    Create model by Tensorflow.
+    :param embedding_matrix:
+    :param embed_size:
+    :return:
+    """
     inp = tf.keras.layers.Input(shape=(maxlen,))
     x = tf.keras.layers.Embedding(max_features, embed_size, weights=[embedding_matrix])(inp)
  
@@ -223,28 +229,43 @@ def model_gru(embedding_matrix, embed_size):
 
 
 def train_model(model):
+    """
+    Train model.
+    :param model:
+    :return:
+    """
     embedding_name = os.path.splitext(os.path.basename(embedding_file))[0]
     fileName = 'weights_best' + traget_Emotion + embedding_name + '.h5'
     filepath = fileName
     # filepath = "weights_best.h5"
-    checkpoint = tf.keras.callbacks.ModelCheckpoint(filepath, monitor='val_loss', verbose=2, save_best_only=True, mode='min')
-    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=1, min_lr=0.0001, verbose=2)
-    earlystopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0.0001, patience=2, verbose=2, mode='auto')
+    checkpoint = tf.keras.callbacks.ModelCheckpoint(filepath,
+                                                    monitor='val_loss', verbose=2,
+                                                    save_best_only=True, mode='min')
+    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5,
+                                                     patience=1, min_lr=0.0001, verbose=2)
+    earlystopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0.0001,
+                                                     patience=2, verbose=2, mode='auto')
     callbacks = [checkpoint, reduce_lr]
 
-    history = model.fit(train_X, train_y, batch_size=batchsize, epochs=num_epochs, validation_data=(val_X, val_y), callbacks=callbacks)
+    history = model.fit(train_X, train_y,
+                        batch_size=batchsize, epochs=num_epochs,
+                        validation_data=(val_X, val_y), callbacks=callbacks)
     model.load_weights(filepath)
-    #plot_graphs(history, 'accuracy')
-    #plot_graphs(history, 'loss')
+    # plot_graphs(history, 'accuracy')
+    # plot_graphs(history, 'loss')
     pred_val_y = model.predict([val_X], batch_size=1024, verbose=0)
     pred_test_y = model.predict([test_X], batch_size=1024, verbose=0)
+
     return pred_val_y, pred_test_y
 
 
-'''
-This function computes the best F1 score by looking at predictions.
-'''
 def f1_smart(y_true, y_pred):
+    """
+    This function computes the best F1 score by looking at predictions for evaluation.
+    :param y_true:
+    :param y_pred:
+    :return:
+    """
     thresholds = []
     for thresh in np.arange(0.1, 0.501, 0.01):
         thresh = np.round(thresh, 2)
@@ -268,15 +289,17 @@ def plot_graphs(history, string):
     plt.legend([string, 'val_'+string])
     plt.show()
 
-emotions = [ 'surprise']
-for traget_Emotion in emotions:
-    train_X, val_X, test_X, train_y, val_y, test_y, word_index = prepare_data(traget_Emotion)
-    embedding_matrix, embedding_size = load_embedding(word_index, embedding_file)
-    model1 = model_gru(embedding_matrix, embedding_size)
-    print(model1.summary())
-    pred_val_y, pred_test_y = train_model(model1)
-    f1, threshold = f1_smart(test_y, pred_test_y)
-    printout = 'Optimal F1: {} at threshold: {}'.format(f1, threshold)
-    print(printout)
+
+if __name__ == '__main__':
+    emotions = ['surprise']
+    for traget_Emotion in emotions:
+        train_X, val_X, test_X, train_y, val_y, test_y, word_index = prepare_data(traget_Emotion)
+        embedding_matrix, embedding_size = load_embedding(word_index, embedding_file)
+        model1 = model_gru(embedding_matrix, embedding_size)
+        print(model1.summary())
+        pred_val_y, pred_test_y = train_model(model1)
+        f1, threshold = f1_smart(test_y, pred_test_y)
+        printout = 'Optimal F1: {} at threshold: {}'.format(f1, threshold)
+        print(printout)
 
 
