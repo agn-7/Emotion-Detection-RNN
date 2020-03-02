@@ -2,6 +2,8 @@
 
 This is the code for training an emotion detection model using GRU presented in:
 
+![GRU Model](model.png "GRU Model")
+
 ___
 ## Train your own model
 
