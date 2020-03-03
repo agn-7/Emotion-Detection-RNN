@@ -53,7 +53,7 @@ def clean_data(x):
     return x
 
 
-def prepare_data(target_emotion = 'anger',other_emotions=None):
+def prepare_data(target_emotion='anger', other_emotions=None):
     """
     Prepares Train, Validation, and Test set along with the vocabulary
     for a given target emotion.
@@ -217,7 +217,8 @@ def model_gru(embedding_matrix, embed_size):
     :return:
     """
     inp = tf.keras.layers.Input(shape=(maxlen,))
-    x = tf.keras.layers.Embedding(max_features, embed_size, weights=[embedding_matrix])(inp)
+    x = tf.keras.layers.Embedding(max_features, embed_size,
+                                  weights=[embedding_matrix], trainable=False)(inp)
  
     x = tf.keras.layers.Bidirectional(tf.keras.layers.GRU(35, return_sequences=True))(x)
     avg_pool = tf.keras.layers.GlobalAveragePooling1D()(x)
