@@ -141,7 +141,6 @@ def prepare_data(target_emotion='anger', other_emotions=None):
     train_y = train_df['emotion'].values
     val_y = val_df['emotion'].values
     test_y = test_df['emotion'].values
-    print(type(train_y))
 
     # shuffling the data
     np.random.seed(2018)
@@ -206,6 +205,7 @@ def load_embedding(word_index, embedding_file):
 
     print('# of embeding changed: ')
     print(count)
+
     return embedding_matrix, embed_size
 
 
@@ -230,6 +230,7 @@ def model_gru(embedding_matrix, embed_size):
     outp = tf.keras.layers.Dense(1, activation="sigmoid")(conc)
     model = tf.keras.models.Model(inputs=inp, outputs=outp)
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+
     return model
 
 
