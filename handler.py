@@ -186,6 +186,7 @@ def load_embedding(word_index, embedding_file):
     print("*****embedding Size********")
     print(embed_size)
     # word_index = tokenizer.word_index
+    print(f"word_index length: {len(word_index)}\n")
     nb_words = min(max_features, len(word_index))
     embedding_matrix = np.random.normal(emb_mean, emb_std, (nb_words, embed_size))
     count = 0
@@ -195,7 +196,7 @@ def load_embedding(word_index, embedding_file):
         embedding_vector = embeddings_index.get(word)
         if embedding_vector is not None:
             embedding_matrix[i] = embedding_vector
-            count = count + 1
+            count += 1
         else:
             notFountWords.append(word)
     
@@ -203,8 +204,7 @@ def load_embedding(word_index, embedding_file):
         for item in notFountWords:
             f.write("%s\n" % item)
 
-    print('# of embeding changed: ')
-    print(count)
+    print(f'Number of embedding changed: {count}')
 
     return embedding_matrix, embed_size
 
@@ -297,15 +297,13 @@ def plot_graphs(history, string):
 
 
 if __name__ == '__main__':
-    emotions = ['surprise']
-    for traget_Emotion in emotions:
-        train_X, val_X, test_X, train_y, val_y, test_y, word_index = prepare_data(traget_Emotion)
-        embedding_matrix, embedding_size = load_embedding(word_index, embedding_file)
-        model1 = model_gru(embedding_matrix, embedding_size)
-        print(model1.summary())
-        pred_val_y, pred_test_y = train_model(model1)
-        f1, threshold = f1_smart(test_y, pred_test_y)
-        printout = 'Optimal F1: {} at threshold: {}'.format(f1, threshold)
-        print(printout)
+    train_X, val_X, test_X, train_y, val_y, test_y, word_index = prepare_data(traget_Emotion)
+    embedding_matrix, embedding_size = load_embedding(word_index, embedding_file)
+    model1 = model_gru(embedding_matrix, embedding_size)
+    print(model1.summary())
+    pred_val_y, pred_test_y = train_model(model1)
+    f1, threshold = f1_smart(test_y, pred_test_y)
+    printout = 'Optimal F1: {} at threshold: {}'.format(f1, threshold)
+    print(printout)
 
 
