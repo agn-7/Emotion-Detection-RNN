@@ -305,5 +305,3 @@ if __name__ == '__main__':
     f1, threshold = f1_smart(test_y, pred_test_y)
     printout = 'Optimal F1: {} at threshold: {}'.format(f1, threshold)
     print(printout)
-
-
