@@ -12,7 +12,7 @@ Requirements (tested with):
 - *Numpy 1.14.5*
 - *Pandas 0.24.1*
 - *Sklearn 0.19.0*
-- *Tensorflow 2.0.0-beta0*
+- *Tensorflow 2.0.0-beta1*
 
 ### To run:
 
@@ -27,6 +27,10 @@ Use the configuration.cfg to set the name of dataset and embedding file, maximun
 Then run the `handler.py`:
 
     python handler.py
+
+## Google-Colab
+
+You can use `handler.ipynb` in order to using in google-colab or jupyter notebook.
 
 ## Testing
 
