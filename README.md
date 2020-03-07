@@ -14,6 +14,10 @@ Requirements (tested with):
 - *Sklearn 0.19.0*
 - *Tensorflow 2.0.0-beta1*
 
+### Installation:
+
+    pip install -r requirements.txt
+
 ### To run:
 
 After downloading/cloning, put the dataset in the data folder. 
@@ -28,10 +32,11 @@ Then run the `handler.py`:
 
     python handler.py
 
-## Google-Colab
+### Google-Colab
 
 You can use `handler.ipynb` in order to using in google-colab or jupyter notebook.
 
+---
 ## Testing
 
 You can download the trained models used for the paper at: https://drive.google.com/open?id=1TXEbHMTA_AWPFC8bbt7WiBtfT3jVy8cG . 
