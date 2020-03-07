@@ -26,7 +26,7 @@ To use the dataset in the paper you can download tweets based on their tweet ids
 
 The embedding file should be placed in `./vectorss/`
 
-Use the configuration.cfg to set the name of dataset and embedding file, maximun numer in the vocabulary (max_features), maximum length of terms in the text (maxlen), bactch size and number of epochs to run the training. 
+Use the `configuration.cfg` to set the name of dataset and embedding file, maximun numer in the vocabulary (max_features), maximum length of terms in the text (maxlen), bactch size and number of epochs to run the training. 
 
 Then run the `handler.py`:
 
