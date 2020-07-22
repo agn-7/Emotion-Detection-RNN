@@ -34,7 +34,7 @@ Then run the `handler.py`:
 
 ### Google-Colab
 
-You can use `handler.ipynb` in order to using in google-colab or jupyter notebook.
+You can use `handler.ipynb` in order to use in google-colab or jupyter notebook.
 
 <a href="https://colab.research.google.com/github/agn-7/Emotion-Detection-RNN/blob/master/handler.ipynb"><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg?style=flat-square"></a>
 
